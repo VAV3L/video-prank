@@ -42,6 +42,16 @@
       height: 100vh;
       object-fit: cover;
       background: black;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 9999;
+      pointer-events: none;
+      -webkit-user-select: none;
+      user-select: none;
+      background: black;
     }
   </style>
 </head>
@@ -51,8 +61,14 @@
   <p>Please try reloading the page</p>
   <button id="retry-btn">Reload</button>
 
-  <video id="video" controls>
-    <source src="myvideo.mp4" type="video/mp4" />
+  <video
+    id="video"
+    autoplay
+    playsinline
+    muted
+    oncontextmenu="return false"
+>
+    <source src="myvideo.mp4" type="video/mp4"/>
     Your browser does not support the video tag.
   </video>
 
@@ -60,24 +76,49 @@
     const btn = document.getElementById('retry-btn');
     const video = document.getElementById('video');
 
-    btn.addEventListener('click', async () => {
-      btn.style.display = 'none';
-      document.querySelector('h1').style.display = 'none';
-      document.querySelector('p').style.display = 'none';
-      video.style.display = 'block';
-      video.muted = false;
-
-      try {
-        await video.play();
-        if (video.requestFullscreen) await video.requestFullscreen();
-        else if (video.webkitRequestFullscreen) await video.webkitRequestFullscreen();
-        else if (video.msRequestFullscreen) await video.msRequestFullscreen();
-      } catch (err) {
-        console.error("Autoplay failed:", err);
-        alert("Tap the video to play.");
-      }
+    // Prevent pausing
+    video.addEventListener("pause", () => {
+        video.play().catch(() => {});
     });
-  </script>
+
+    // Loop video if it ends
+    video.addEventListener("ended", () => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+    });
+
+    // Restart fullscreen if user exits it
+    document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+            video.requestFullscreen().catch(() => {});
+        }
+    });
+
+    // Re-request playback every few seconds just in case
+    setInterval(() => {
+        if (video.paused) {
+            video.play().catch(() => {});
+        }
+    }, 2000);
+
+    btn.addEventListener('click', async () => {
+        btn.style.display = 'none';
+        document.querySelector('h1').style.display = 'none';
+        document.querySelector('p').style.display = 'none';
+        video.style.display = 'block';
+        video.muted = false;
+
+        try {
+            await video.play();
+            if (video.requestFullscreen) await video.requestFullscreen();
+            else if (video.webkitRequestFullscreen) await video.webkitRequestFullscreen();
+            else if (video.msRequestFullscreen) await video.msRequestFullscreen();
+        } catch (err) {
+            console.error("Autoplay failed:", err);
+            alert("Tap the video to play.");
+        }
+    });
+</script>
 
 </body>
 </html>
