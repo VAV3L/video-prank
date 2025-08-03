@@ -3,42 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Autoplay Video</title>
+  <title>Video Autoplay Hack</title>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       background: black;
+      height: 100%;
+      overflow: hidden;
     }
-    video {
+    #vid {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+    #unmute-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 30px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 12px;
+    }
   </style>
 </head>
 <body>
-  <video autoplay playsinline controls id="vid">
-    <source src="myvideo.mp4" type="video/mp4" />
+  <video id="vid" autoplay muted playsinline>
+    <source src="vid.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
+  <button id="unmute-btn">🔊 Tap to Unmute</button>
 
   <script>
-    const vid = document.getElementById('vid');
-    vid.muted = false;
+    const video = document.getElementById('vid');
+    const btn = document.getElementById('unmute-btn');
 
-    // Attempt fullscreen on tap
-    document.addEventListener('click', () => {
-      if (vid.requestFullscreen) vid.requestFullscreen();
-      else if (vid.webkitRequestFullscreen) vid.webkitRequestFullscreen();
-      else if (vid.msRequestFullscreen) vid.msRequestFullscreen();
-      vid.play();
-    });
+    btn.addEventListener('click', async () => {
+      try {
+        video.muted = false;
+        await video.play();
 
-    // Try to autoplay immediately
-    vid.play().catch(() => {
-      console.log("Browser blocked autoplay with sound. Tap to play.");
+        // Try fullscreen
+        if (video.requestFullscreen) video.requestFullscreen();
+        else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+        else if (video.msRequestFullscreen) video.msRequestFullscreen();
+
+        btn.style.display = 'none';
+      } catch (e) {
+        alert("Autoplay with sound blocked. Tap again.");
+      }
     });
   </script>
 </body>
